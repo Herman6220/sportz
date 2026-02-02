@@ -26,9 +26,9 @@ matchRouter.get("/", async (req, res) => {
             .orderBy(desc(matches.createdAt))
             .limit(limit)
 
-        res.json({data});
+        res.json({ data });
     } catch (error) {
-        return res.status(500).json({ error: "Failed to list match."});
+        return res.status(500).json({ error: "Failed to list match." });
     }
 })
 
@@ -49,8 +49,12 @@ matchRouter.post("/", async (req, res) => {
             status: getMatchStatus(startTime, endTime)
         }).returning();
 
-        if(res.app.locals.broadcastMatchCreated){
-            res.app.locals.broadcastMatchCreated(event);
+        if (res.app.locals.broadcastMatchCreated) {
+            try {
+                res.app.locals.broadcastMatchCreated(event);
+            } catch (broadcastError) {
+                console.error("Failed to broadcast match created event:", broadcastError);
+            }
         }
 
         res.status(201).json({ data: event })
